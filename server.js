@@ -1,8 +1,8 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const AWS = require('aws-sdk');
-const uuid = require('uuid');
-const fs = require('fs');
+// const uuid = require('uuid');
+// const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -17,7 +17,7 @@ const config = {
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   region: process.env.AWS_S3_REGION
 };
-let S3 = new AWS.S3(config); //Make sure its let so that you can change later
+const S3 = new AWS.S3(config);
 
 // Middleware ==================== //
 // Express File Upload

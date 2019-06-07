@@ -35,6 +35,8 @@ create-react-app client
 in the react client folder...
 
 ```zsh
+# in /client...
+yarn add @fortawesome/free-brands-svg-icons
 yarn add @fortawesome/fontawesome-svg-core
 yarn add @fortawesome/free-solid-svg-icons
 yarn add @fortawesome/react-fontawesome

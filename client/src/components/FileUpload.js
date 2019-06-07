@@ -27,7 +27,7 @@ const FileUpload = () => {
       const { fileName, filePath } = res.data; // from the backend
       console.log('response: ', res.data);
       setUploadedFile({fileName, filePath});
-      console.log('File uploaded: ', uploadedFile);
+      // console.log('File uploaded: ', uploadedFile);
 
     } catch(err) {
         console.error(err);
@@ -49,10 +49,10 @@ const FileUpload = () => {
         </div>
         <input type="submit" value="Upload" className="btn btn-primary btn-block mt-4" />
       </form>
-      {!uploadedFile ? (
+      {uploadedFile ? (
         <div className="row mt-5">
           <h3 className="text-center">{uploadedFile.fileName}</h3>
-          <img style={{width: '100%'}} src={uploadedFile.filePath} alt={'Uploaded File '+ uploadedFile.filename} />
+          <img style={{width: '100%'}} src={uploadedFile.filePath} alt='Uploaded' />
         </div>
        ) : null }
     </>

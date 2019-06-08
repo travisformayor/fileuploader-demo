@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Message from './Message';
+import Progress from './Progress';
 import axios from 'axios';
 
 
@@ -8,6 +9,7 @@ const FileUpload = () => {
   const [ filename, setFilename ] = useState('Choose File');
   const [ uploadedFile, setUploadedFile ] = useState({});
   const [ message, setMessage ] = useState('');
+  const [ uploadPercentage, setUploadPercentage ] = useState(0);
 
   const onChange = e => {
     console.log(e.target)
@@ -24,6 +26,16 @@ const FileUpload = () => {
       const res = await axios.post('/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
+        },
+        onUploadProgress: progressEvent => {
+          // will get .loaded and .total
+          setUploadPercentage(
+            parseInt(
+              Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            )
+          );
+          // clear the percentage 10 seconds after done
+          // setTimeout(() => setPercentage(0), 10000);
         }
       });
       // save response object into state
@@ -46,15 +58,16 @@ const FileUpload = () => {
     <>
       {message ? <Message msg={message} /> : null}
       <form onSubmit={onSubmit}>
-        <div className="custom-file">
+        <div className="custom-file mb-4">
           <input type="file" className="custom-file-input" id="customFile" onChange={onChange} />
           <label className="custom-file-label" htmlFor="customFile">
             {filename}
           </label>
         </div>
+        <Progress percentage={uploadPercentage} />
         <input type="submit" value="Upload" className="btn btn-primary btn-block mt-4" />
       </form>
-      {console.log('uploaded file: ', Object.keys(uploadedFile).length)}
+      {console.log('uploaded file %: ', uploadPercentage)}
       {(Object.keys(uploadedFile).length > 0) ? (
         <div className="row mt-5">
           <h3 className="text-center">{uploadedFile.fileName}</h3>

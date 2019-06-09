@@ -8,3 +8,9 @@ Plus some extras
 - File size limit
 - Only supported file types
 - Rename file to its md5 hash
+- Save to s3
+
+note: switch from market to gallery in final readme challenges
+
+<https://www.npmjs.com/package/dotenv>
+for env's like s3 credentials and jwt secret key

@@ -1,10 +1,25 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
+const AWS = require('aws-sdk');
+const uuid = require('uuid');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware ==== //
+// Load ENV Vars ================= //
+require('dotenv').config()
+
+// AWS =========================== //
+const config = {
+  apiVersion: '2006-03-01',
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_S3_REGION
+};
+let S3 = new AWS.S3(config); //Make sure its let so that you can change later
+
+// Middleware ==================== //
 // app.use(fileUpload());
 
 app.use(fileUpload({
@@ -43,6 +58,61 @@ app.post('/upload', (req, res) => {
     });
   } else {
     return res.status(400).json({msg: 'Unsupported file type'})
+  }
+});
+
+// Test endpoint - add file to new S3 bucket
+app.post('/s3test', async (req, res) => {
+  try {
+    // Create new bucket with unique name
+    const bucketName = 'node-sdk-sample-' + uuid.v4();
+    const createdBucket = await S3.createBucket({Bucket: bucketName});
+    // Create test file for upload
+    const keyName = 'hello_world.txt';
+    const objectParams = {Bucket: bucketName, Key: keyName, Body: 'Hello World!'};
+    // Add test file to just created bucket
+    const uploadedFile = await S3.putObject(objectParams);
+    
+    // No errors caught yet
+    // console.log('Bucket creation response: ', createdBucket); // note: this has secrets in the output
+    // console.log('File upload response: ', uploadedFile);
+
+    const saveResponse = (circularResponse, output) => {
+      // response object has a circular structure that causes stringify to fail
+      // The workaround below is from mdn:
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Cyclic_object_value
+      const getCircularReplacer = () => {
+        const seen = new WeakSet();
+        return (key, value) => {
+          if (typeof value === "object" && value !== null) {
+            if (seen.has(value)) {
+              return;
+            }
+            seen.add(value);
+          }
+          return value;
+        };
+      };
+
+      const fixedResponse = JSON.stringify(circularResponse, getCircularReplacer());
+      // {"otherData":123}
+      // Write it to a file
+      fs.writeFile(output, fixedResponse, (err) => { 
+        if (err) throw err;
+        console.log("Data is written to file successfully.")
+      });
+    }
+
+    saveResponse(createdBucket, 'createdBucketOutput.json');
+    saveResponse(uploadedFile, 'uploadedFileOutput.json');
+
+    // console.log("Successfully uploaded data to " + bucketName + "/" + keyName);
+    return res.status(200).json({msg: 'Upload attempt has finished with no obvious errors'})
+
+  } catch (err) {
+    // Something went wrong
+    console.error(err, err.stack);
+    return res.status(500).json({msg: 'Something went wrong', errorData: err})
   }
 });
 

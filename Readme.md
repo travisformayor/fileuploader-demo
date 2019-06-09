@@ -8,9 +8,12 @@ Plus some extras
 - File size limit
 - Only supported file types
 - Rename file to its md5 hash
-- Save to s3
+- Save to s3 (not done yet)
 
-note: switch from market to gallery in final readme challenges
+Creating bucket and file in s3 is following this guide:
 
-<https://www.npmjs.com/package/dotenv>
-for env's like s3 credentials and jwt secret key
+<https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/getting-started-nodejs.html>
+
+The JSON convert code for dealing with circular structure in the aws response is from here:
+
+<https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Cyclic_object_value>

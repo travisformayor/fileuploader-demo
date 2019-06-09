@@ -39,11 +39,11 @@ const FileUpload = () => {
       });
       setTimeout(() => setUploadPercentage(0), 10000);
       // save response object into state
-      const { fileName, filePath } = res.data; // from the backend
+      const { fileName, filePath, msg } = res.data; // from the backend
       console.log('response: ', res.data);
       setUploadedFile({fileName, filePath});
       // console.log('File uploaded: ', uploadedFile);
-      setMessage({msg: 'File Uploaded', status: 'info'})
+      setMessage({msg: msg, status: 'info'}); // 'File Uploaded'
 
     } catch(err) {
         console.error(err);

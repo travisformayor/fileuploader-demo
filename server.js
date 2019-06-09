@@ -66,47 +66,17 @@ app.post('/s3test', async (req, res) => {
   try {
     // Create new bucket with unique name
     const bucketName = 'node-sdk-sample-' + uuid.v4();
-    const createdBucket = await S3.createBucket({Bucket: bucketName});
+    const createdBucket = await S3.createBucket({Bucket: bucketName}).promise();
     // Create test file for upload
     const keyName = 'hello_world.txt';
-    const objectParams = {Bucket: bucketName, Key: keyName, Body: 'Hello World!'};
+    const objectParams = {Bucket: bucketName, ACL: 'public-read', Key: keyName, Body: 'Hello Whole World!'};
     // Add test file to just created bucket
-    const uploadedFile = await S3.putObject(objectParams);
+    const uploadedFile = await S3.putObject(objectParams).promise();
     
-    // No errors caught yet
-    // console.log('Bucket creation response: ', createdBucket); // note: this has secrets in the output
-    // console.log('File upload response: ', uploadedFile);
-
-    const saveResponse = (circularResponse, output) => {
-      // response object has a circular structure that causes stringify to fail
-      // The workaround below is from mdn:
-      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Cyclic_object_value
-      const getCircularReplacer = () => {
-        const seen = new WeakSet();
-        return (key, value) => {
-          if (typeof value === "object" && value !== null) {
-            if (seen.has(value)) {
-              return;
-            }
-            seen.add(value);
-          }
-          return value;
-        };
-      };
-
-      const fixedResponse = JSON.stringify(circularResponse, getCircularReplacer());
-      // {"otherData":123}
-      // Write it to a file
-      fs.writeFile(output, fixedResponse, (err) => { 
-        if (err) throw err;
-        console.log("Data is written to file successfully.")
-      });
-    }
-
-    saveResponse(createdBucket, 'createdBucketOutput.json');
-    saveResponse(uploadedFile, 'uploadedFileOutput.json');
-
-    // console.log("Successfully uploaded data to " + bucketName + "/" + keyName);
+    const fileETag = uploadedFile.ETag; // md5 of the file (as long as its not a large multi-part upload)
+    const bucketLocation = createdBucket.Location
+    console.log("Successfully uploaded data. It should be located at: " + bucketName + "/" + keyName);
+    console.log("The returned location and ETag: ", bucketLocation, fileETag)
     return res.status(200).json({msg: 'Upload attempt has finished with no obvious errors'})
 
   } catch (err) {

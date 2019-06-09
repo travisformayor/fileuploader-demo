@@ -35,28 +35,32 @@ const FileUpload = () => {
             )
           );
           // clear the percentage 10 seconds after done
-          // setTimeout(() => setPercentage(0), 10000);
         }
       });
+      setTimeout(() => setUploadPercentage(0), 10000);
       // save response object into state
       const { fileName, filePath } = res.data; // from the backend
       console.log('response: ', res.data);
       setUploadedFile({fileName, filePath});
       // console.log('File uploaded: ', uploadedFile);
-      setMessage('FIle Uploaded')
+      setMessage({msg: 'File Uploaded', status: 'info'})
 
     } catch(err) {
         console.error(err);
+        setUploadPercentage(0);
         if (err.response.status === 500) {
-          setMessage('There was a problem with the server');
+          setMessage({msg: 'There was a problem with the server', status: 'danger'});
+        } else if (err.response.status === 413) {
+          setMessage({msg: 'The file size is too damn high!', status: 'danger'});
         } else { 
-          setMessage(err.response.data.msg);
+          // stuff like the 'no file uploaded' message from server
+          setMessage({msg: err.response.data.msg, status: 'danger'});
         }
     }
   }
   return (
     <>
-      {message ? <Message msg={message} /> : null}
+      {message ? <Message msg={message.msg} status={message.status}/> : null}
       <form onSubmit={onSubmit}>
         <div className="custom-file mb-4">
           <input type="file" className="custom-file-input" id="customFile" onChange={onChange} />
@@ -67,7 +71,7 @@ const FileUpload = () => {
         <Progress percentage={uploadPercentage} />
         <input type="submit" value="Upload" className="btn btn-primary btn-block mt-4" />
       </form>
-      {console.log('uploaded file %: ', uploadPercentage)}
+      {/* {console.log('uploaded file %: ', uploadPercentage)} */}
       {(Object.keys(uploadedFile).length > 0) ? (
         <div className="row mt-5">
           <h3 className="text-center">{uploadedFile.fileName}</h3>

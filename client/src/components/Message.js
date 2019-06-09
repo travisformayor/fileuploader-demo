@@ -1,9 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Message = ({ msg }) => {
+const Message = ({ msg, status }) => {
+
+  // info, danger, success - bootstrap options for message color
   return (
-    <div className="alert alert-info alert-dismissible fade show" role="alert">
+    <div className={`alert alert-${status === 'info' ? 'info' : 'danger'} alert-dismissible fade show`} role="alert">
       {msg}
       <button type="button" className="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
@@ -12,9 +14,10 @@ const Message = ({ msg }) => {
   )
 }
 
-// check the var type for the message prop
+// check the var type of the props
 Message.propTypes = {
-  msg: PropTypes.string.isRequired
+  msg: PropTypes.string.isRequired,
+  status: PropTypes.string.isRequired
 }
 
 export default Message;
